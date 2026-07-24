@@ -1,0 +1,8 @@
+services:
+  users_db:
+    image: mysql:9
+    env_file:
+      - ./apps/users/.env
+    ports:
+      - 3306:3306
+    
