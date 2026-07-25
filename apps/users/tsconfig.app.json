@@ -5,7 +5,9 @@
     "outDir": "../../dist/apps/users",
     "paths": {
       "@app/database": ["libs/database/src/index.ts"],
-      "@app/database/*": ["libs/database/src/*"]
+      "@app/database/*": ["libs/database/src/*"],
+      "@app/common": ["libs/common/src/index.ts"],
+      "@app/common/*": ["libs/common/*"]
     }
   },
   "include": ["src/**/*"],

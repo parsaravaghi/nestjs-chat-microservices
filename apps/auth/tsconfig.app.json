@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": "../../dist/apps/auth",
+    "paths": {
+      "@app/constracts": ["libs/constracts/src/index.ts"],
+      "@app/constracts/*": ["libs/constracts/src/*"],
+      "@app/common": ["libs/common/src/index.ts"],
+      "@app/common/*": ["libs/common/*"],
+      "@app/database": ["libs/database/src/index.ts"],
+      "@app/database/*": ["libs/database/*"],
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}
