@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { UsersService } from '../src/users.service';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserEntity } from '@app/database';
 import { QueryFailedError } from 'typeorm';
-import { BadRequestException, InternalServerErrorException, NotAcceptableException } from '@nestjs/common';
+import { UserDuplicateException } from '../src/exceptions/userDuplicate.exception';
+import { InternalServerException, UnknownDbException } from '@app/common';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 describe('Users (unit)', () => {
   let service: UsersService;
@@ -53,20 +54,7 @@ describe('Users (unit)', () => {
       mockedRepo.save.mockRejectedValue(error);
 
       await expect(service.createOne(user)).rejects.toThrow(
-        NotAcceptableException,
-      );
-    });
-
-    it('should throw not acceptable error', async () => {
-      const error = new QueryFailedError('user duplicarion error', [], {
-        errno: 1062,
-      });
-
-      mockedRepo.create.mockReturnValue(user);
-      mockedRepo.save.mockRejectedValue(error);
-
-      await expect(service.createOne(user)).rejects.toThrow(
-        NotAcceptableException,
+        UserDuplicateException,
       );
     });
 
@@ -78,9 +66,7 @@ describe('Users (unit)', () => {
       mockedRepo.create.mockReturnValue(user);
       mockedRepo.save.mockRejectedValue(error);
 
-      await expect(service.createOne(user)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(service.createOne(user)).rejects.toThrow(UnknownDbException);
     });
 
     it('should throw bad request error', async () => {
@@ -90,7 +76,7 @@ describe('Users (unit)', () => {
       mockedRepo.save.mockRejectedValue(error);
 
       await expect(service.createOne(user)).rejects.toThrow(
-        InternalServerErrorException,
+        InternalServerException,
       );
     });
   });

@@ -1,8 +1,8 @@
-import { beforeAll, describe, expect, it } from '@jest/globals';
+
 import { UsersService } from '../src/users.service';
 import { Test } from '@nestjs/testing';
 import { UsersModule } from '../src/users.module';
-import { NotAcceptableException } from '@nestjs/common';
+import { UserDuplicateException } from '../src/exceptions/userDuplicate.exception';
 
 describe('Users (integration)', () => {
   let service: UsersService;
@@ -37,7 +37,7 @@ describe('Users (integration)', () => {
 
     it('should throw not acceptable error', async () => {
       await expect(service.createOne(user)).rejects.toThrow(
-        NotAcceptableException,
+        UserDuplicateException,
       );
     });
   });
