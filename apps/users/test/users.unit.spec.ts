@@ -9,6 +9,8 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 describe('Users (unit)', () => {
   let service: UsersService;
+
+  // Mock the UserEntity repository.
   const mockedRepo = {
     create: jest.fn(),
     save: jest.fn(),
@@ -26,6 +28,9 @@ describe('Users (unit)', () => {
     }).compile();
 
     service = module.get(UsersService);
+
+    // Reset mock state before each test.
+    jest.clearAllMocks();
   });
 
   describe('user creation', () => {
@@ -37,6 +42,7 @@ describe('Users (unit)', () => {
     };
 
     it('should return mocked user value', async () => {
+      // Mock a successful repository operation.
       mockedRepo.create.mockReturnValue(user);
       mockedRepo.save.mockReturnValue(user);
 
@@ -46,6 +52,7 @@ describe('Users (unit)', () => {
     });
 
     it('should throw not acceptable error', async () => {
+      // Simulate MySQL duplicate key error (errno 1062).
       const error = new QueryFailedError('user duplicarion error', [], {
         errno: 1062,
       });
@@ -59,6 +66,7 @@ describe('Users (unit)', () => {
     });
 
     it('should throw bad request error', async () => {
+      // Simulate an unknown database error.
       const error = new QueryFailedError('user duplicarion error', [], {
         errno: 1063,
       });
@@ -70,6 +78,7 @@ describe('Users (unit)', () => {
     });
 
     it('should throw bad request error', async () => {
+      // Simulate a non-database error.
       const error = new Error('internal server error');
 
       mockedRepo.create.mockReturnValue(user);

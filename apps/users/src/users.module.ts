@@ -9,10 +9,15 @@ import { UserEntity } from '@app/database';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+
+      // Load shared and service-specific environment variables.
       envFilePath: ['.env', './apps/users/.env'],
     }),
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
+
+      // Configure the database connection from environment variables.
       useFactory: (configService: ConfigService) => {
         return {
           type: 'mysql',
@@ -21,11 +26,16 @@ import { UserEntity } from '@app/database';
           username: configService.get('APP_DB_USER'),
           password: configService.get('APP_DB_PASSWORD'),
           database: configService.get('APP_DB_NAME'),
+
+          // Automatically synchronize the schema only in development.
           synchronize: configService.get('APP_ENVIROMENT') === 'development',
+
           entities: [UserEntity],
         };
       },
     }),
+
+    // Register UserEntity for dependency injection via TypeORM repositories.
     TypeOrmModule.forFeature([UserEntity]),
   ],
   controllers: [UsersController],

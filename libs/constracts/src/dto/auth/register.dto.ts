@@ -29,6 +29,7 @@ export class RegisterDto {
   password: string;
 
   @IsDefined({ message: 'email is required' })
+  @IsString({ message: 'email must be a string' })
   @IsEmail(
     {},
     {
