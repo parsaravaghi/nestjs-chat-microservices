@@ -11,4 +11,9 @@ export class UsersController {
   async createOne(@Payload() userData: UserEntity) {
     return await this.usersService.createOne(userData);
   }
+
+  @MessagePattern('user.findOneBy')
+  findOneBy(@Payload() userData: UserEntity) {
+    return this.usersService.findOneBy(userData);
+  }
 }

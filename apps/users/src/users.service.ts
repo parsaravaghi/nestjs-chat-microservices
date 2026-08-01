@@ -1,9 +1,10 @@
 import { UserEntity } from '@app/database';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { FindOptionsWhere, QueryFailedError, Repository } from 'typeorm';
 import { UserDuplicateException } from './exceptions/userDuplicate.exception';
 import { InternalServerException, UnknownDbException } from '@app/common';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +14,10 @@ export class UsersService {
   ) {}
 
   async createOne(userData: UserEntity) {
-    const newUser = this.userRepo.create(userData);
+    const newUser = this.userRepo.create({
+      ...userData,
+      password: (await bcrypt.hash(userData.password, 12)) as string,
+    });
 
     try {
       return await this.userRepo.save(newUser);
@@ -21,6 +25,12 @@ export class UsersService {
       // Convert database errors into application-specific exceptions.
       this.handleError(error);
     }
+  }
+
+  async findOneBy(
+    userData: FindOptionsWhere<UserEntity>,
+  ): Promise<UserEntity | null> {
+    return this.userRepo.findOneBy(userData);
   }
 
   handleError(error: any): never {

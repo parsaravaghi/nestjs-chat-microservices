@@ -6,6 +6,12 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin',
+}
 
 export class RegisterDto {
   @IsDefined({ message: 'username is required' })
@@ -37,4 +43,13 @@ export class RegisterDto {
     },
   )
   email: string;
+
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+  roles: UserRole;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
