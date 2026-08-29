@@ -3,10 +3,14 @@ import { AuthController } from './auth/auth.controller';
 import { ClientsModule } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createRmqOptions } from '@app/constracts';
+import { ChatController } from './chat/chat.controller';
+import { ChatGateway } from './chat/chat.gateway';
+import { ChatEventsController } from './chat/chatEvents.controller';
+import { WebSocketAuthMiddleware } from './common/middlewares/webSocketAuth.middleware';
+import { WsJwtGuard } from './common/guards/ws-jwt.guard';
 
 @Module({
   imports: [
-    // Make environment variables available application-wide.
     ConfigModule.forRoot({ isGlobal: true }),
 
     ClientsModule.registerAsync([
@@ -14,12 +18,17 @@ import { createRmqOptions } from '@app/constracts';
         name: 'AUTH_SERVICE',
         inject: [ConfigService],
 
-        // Configure the RabbitMQ client using environment-based settings.
         useFactory: createRmqOptions('auth_queue'),
+      },
+      {
+        name: 'CHAT_SERVICE',
+        inject: [ConfigService],
+
+        useFactory: createRmqOptions('chat_queue'),
       },
     ]),
   ],
-  controllers: [AuthController],
-  providers: [],
+  controllers: [AuthController, ChatController, ChatEventsController],
+  providers: [ChatGateway, WebSocketAuthMiddleware, WsJwtGuard],
 })
 export class ApiGatewayModule {}

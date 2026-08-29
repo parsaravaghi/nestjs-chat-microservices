@@ -20,6 +20,12 @@ export class UserEntity {
   @Column({ unique: true })
   username: string;
 
+  @Column({ nullable: true })
+  displayName?: string;
+
+  @Column({ nullable: true })
+  avatarUrl?: string;
+
   @Column()
   @Exclude()
   password: string;

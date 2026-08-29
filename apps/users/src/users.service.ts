@@ -1,51 +1,55 @@
 import { UserEntity } from '@app/database';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, QueryFailedError, Repository } from 'typeorm';
-import { UserDuplicateException } from './exceptions/userDuplicate.exception';
-import { InternalServerException, UnknownDbException } from '@app/common';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(
-    // Inject the TypeORM repository for UserEntity.
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
   ) {}
 
   async createOne(userData: UserEntity) {
     const newUser = this.userRepo.create({
       ...userData,
-      password: (await bcrypt.hash(userData.password, 12)) as string,
+      password: await bcrypt.hash(userData.password, 12),
     });
 
-    try {
-      return await this.userRepo.save(newUser);
-    } catch (error) {
-      // Convert database errors into application-specific exceptions.
-      this.handleError(error);
-    }
+    return this.userRepo.save(newUser);
   }
 
   async findOneBy(
-    userData: FindOptionsWhere<UserEntity>,
+    where: FindOptionsWhere<UserEntity>,
   ): Promise<UserEntity | null> {
-    return this.userRepo.findOneBy(userData);
+    return this.userRepo.findOneBy(where);
   }
 
-  handleError(error: any): never {
-    if (error instanceof QueryFailedError) {
-      // MySQL-specific error information.
-      const queryError = error as QueryFailedError & {
-        errno: number;
-      };
+  async findBy(
+    where: FindOptionsWhere<UserEntity> | FindOptionsWhere<UserEntity>[],
+  ): Promise<UserEntity[]> {
+    return this.userRepo.find({
+      where,
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        password: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
 
-      // MySQL error 1062 indicates a duplicate unique key violation.
-      if (queryError.errno === 1062) throw new UserDuplicateException();
-
-      throw new UnknownDbException();
-    }
-
-    throw new InternalServerException();
+  async findByIds(ids: string[]): Promise<UserEntity[]> {
+    return this.userRepo.find({
+      where: { id: In(ids) },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+      },
+    });
   }
 }

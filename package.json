@@ -13,13 +13,13 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/nestjs-authentication-microservice/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:users": "jest apps/users",
-    "test:auth": "jest apps/auth",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/nestjs-authentication-microservice/test/jest-e2e.json"
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:unit": "jest --config jest.unit.config.cjs",
+    "test:integration": "jest --config jest.integration.config.cjs",
+    "test:e2e": "jest --config jest.e2e.config.cjs",
+    "test:watch": "npm run test:unit -- --watch",
+    "test:cov": "npm run test:unit -- --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/jest/bin/jest.js --config jest.unit.config.cjs --runInBand"
   },
   "dependencies": {
     "@jest/globals": "^30.4.1",
@@ -28,16 +28,21 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/microservices": "^11.1.28",
+    "@nestjs/mongoose": "^11.0.4",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/platform-socket.io": "^11.0.1",
     "@nestjs/typeorm": "^11.0.3",
+    "@nestjs/websockets": "^11.0.1",
     "amqp": "^0.2.7",
     "amqp-connection-manager": "^5.0.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "mongoose": "^9.9.3",
     "mysql2": "^3.23.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.8.1",
     "typeorm": "^1.1.0"
   },
   "devDependencies": {
@@ -57,6 +62,7 @@
     "globals": "^17.0.0",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
+    "socket.io-client": "^4.8.3",
     "source-map-support": "^0.5.21",
     "supertest": "^7.2.2",
     "ts-jest": "^29.2.5",
@@ -65,31 +71,5 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "./coverage",
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/apps/",
-      "<rootDir>/libs/"
-    ],
-    "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/constracts(|/.*)$": "<rootDir>/libs/constracts/src/$1",
-      "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1"
-    }
   }
 }

@@ -1,0 +1,5 @@
+FROM mongo:8
+
+RUN openssl rand -base64 756 > /etc/mongodb-keyfile \
+    && chown mongodb:mongodb /etc/mongodb-keyfile \
+    && chmod 400 /etc/mongodb-keyfile

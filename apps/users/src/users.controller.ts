@@ -16,4 +16,14 @@ export class UsersController {
   findOneBy(@Payload() userData: UserEntity) {
     return this.usersService.findOneBy(userData);
   }
+
+  @MessagePattern('user.findBy')
+  findBy(@Payload() userData: UserEntity) {
+    return this.usersService.findBy(userData);
+  }
+
+  @MessagePattern('user.findByIds')
+  findByIds(@Payload() payload: { ids: string[] }) {
+    return this.usersService.findByIds(payload.ids);
+  }
 }

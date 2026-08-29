@@ -4,20 +4,19 @@ import { UsersService } from './users.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '@app/database';
+import { APP_FILTER } from '@nestjs/core';
+import { UsersExceptionFilter } from './filters/usersException.filter';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-
-      // Load shared and service-specific environment variables.
       envFilePath: ['.env', './apps/users/.env'],
     }),
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
 
-      // Configure the database connection from environment variables.
       useFactory: (configService: ConfigService) => {
         return {
           type: 'mysql',
@@ -27,7 +26,6 @@ import { UserEntity } from '@app/database';
           password: configService.get('APP_DB_PASSWORD'),
           database: configService.get('APP_DB_NAME'),
 
-          // Automatically synchronize the schema only in development.
           synchronize: configService.get('APP_ENVIROMENT') === 'development',
 
           entities: [UserEntity],
@@ -35,10 +33,12 @@ import { UserEntity } from '@app/database';
       },
     }),
 
-    // Register UserEntity for dependency injection via TypeORM repositories.
     TypeOrmModule.forFeature([UserEntity]),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [
+    UsersService,
+    { provide: APP_FILTER, useClass: UsersExceptionFilter },
+  ],
 })
 export class UsersModule {}

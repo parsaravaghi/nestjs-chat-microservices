@@ -5,6 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule } from '@nestjs/microservices';
 import { createRmqOptions } from '@app/constracts';
 import { JwtModule } from '@nestjs/jwt';
+import { APP_FILTER } from '@nestjs/core';
+import { RpcExceptionFilter } from '@app/common';
 
 @Module({
   imports: [
@@ -18,7 +20,6 @@ import { JwtModule } from '@nestjs/jwt';
         name: 'USER_SERVICE',
         inject: [ConfigService],
 
-        // Configure the RabbitMQ client using environment-based connection settings.
         useFactory: createRmqOptions('user_queue'),
       },
     ]),
@@ -29,7 +30,6 @@ import { JwtModule } from '@nestjs/jwt';
       useFactory: (configService: ConfigService) => {
         return {
           signOptions: {
-            // Use RSA asymmetric encryption for signing JWTs.
             algorithm: 'RS256',
             expiresIn: '1d',
           },
@@ -47,6 +47,9 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    { provide: APP_FILTER, useClass: RpcExceptionFilter },
+  ],
 })
 export class AuthModule {}
